@@ -37,8 +37,8 @@
       },
       "publishAllPorts": true,
       "useSSL": true,
-      "sslPort": 7088,
-      "httpPort": 7087
+      "sslPort": 7078,
+      "httpPort": 7077
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json",
