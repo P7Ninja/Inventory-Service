@@ -1,5 +1,6 @@
 using InventoryService.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +30,19 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    app.UseSwagger(settings =>
+    {
+        var gatewayUrl = Environment.GetEnvironmentVariable("GATEWAY_URL");
+        if (gatewayUrl != null)
+        {
+            settings.PreSerializeFilters.Add((swagger, httpReq) =>
+            {
+                swagger.Servers.Clear();
+                var serverUrl = $"{httpReq.Scheme}://{gatewayUrl}";
+                swagger.Servers.Add(new OpenApiServer { Url = serverUrl });
+            });
+        }
+    });
     app.UseSwaggerUI();
 }
 
