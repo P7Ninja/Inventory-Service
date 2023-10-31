@@ -1,13 +1,14 @@
 using InventoryService.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<InventoryServiceContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("InventoryServiceContextSQLServer") 
-        ?? throw new InvalidOperationException("Connection string 'InventoryServiceContext' not found.")));
+        builder.Configuration.GetConnectionString("InventoryServiceDb") 
+        ?? throw new InvalidOperationException("Connection string 'InventoryServiceDb' not found.")));
 
 // allows browsers to access the api. Can be deleted later when api gateway is set up
 builder.Services.AddCors(options =>
@@ -29,7 +30,19 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    app.UseSwagger(settings =>
+    {
+        var gatewayUrl = Environment.GetEnvironmentVariable("GATEWAY_URL");
+        if (gatewayUrl != null)
+        {
+            settings.PreSerializeFilters.Add((swagger, httpReq) =>
+            {
+                swagger.Servers.Clear();
+                var serverUrl = $"{httpReq.Scheme}://{gatewayUrl}";
+                swagger.Servers.Add(new OpenApiServer { Url = serverUrl });
+            });
+        }
+    });
     app.UseSwaggerUI();
 }
 
