@@ -7,8 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<InventoryServiceContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("InventoryServiceContextSQLServer") 
-        ?? throw new InvalidOperationException("Connection string 'InventoryServiceContext' not found.")));
+        builder.Configuration.GetConnectionString("InventoryServiceDb") 
+        ?? throw new InvalidOperationException("Connection string 'InventoryServiceDb' not found.")));
 
 // allows browsers to access the api. Can be deleted later when api gateway is set up
 builder.Services.AddCors(options =>
