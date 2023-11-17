@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 var serverVersion = new MySqlServerVersion(new Version(8, 0, 35));
 builder.Services.AddDbContextPool<InventoryServiceContext>(options =>
 {
-    options.UseMySql(builder.Configuration.GetConnectionString("InventoryServiceDb"), serverVersion);
+    options.UseMySql(Environment.GetEnvironmentVariable("DB_CONN") ?? builder.Configuration.GetConnectionString("InventoryServiceDb"), serverVersion);
 });
 
 // allows browsers to access the api. Can be deleted later when api gateway is set up
@@ -56,4 +56,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<InventoryServiceContext>();
+    await db.Database.EnsureCreatedAsync();
+}
 app.Run();
